@@ -23,7 +23,7 @@ def get_db():
         db.close()
 
 def ensure_schema_migrations():
-    """Garantiza que la base de datos SQLite contenga las columnas requeridas por Taiga."""
+    """Garantiza que la base de datos SQLite contenga las columnas requeridas por el sistema."""
     if "sqlite" in settings.DATABASE_URL:
         db_file = Path("data/eyesky.db")
         if db_file.exists():

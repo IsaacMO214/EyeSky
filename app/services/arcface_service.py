@@ -1,7 +1,7 @@
 """
 app/services/arcface_service.py
 Motor de validación de calidad biométrica (HU02 / HU03) y extracción ArcFace.
-Aplica los criterios de aceptación de Taiga:
+Aplica los criterios de aceptación del sistema:
 - Mínimo 5 fotos válidas.
 - Exactamente 1 rostro visible por foto.
 - Resolución de imagen >= 640x480 px.
@@ -19,7 +19,7 @@ from typing import List, Optional, Tuple, Dict, Any
 import cv2
 import numpy as np
 
-# Constantes de Calidad Taiga
+# Constantes de Calidad Biométrica
 DEFAULT_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.55"))
 MIN_FACES_REQUIRED = 5
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
@@ -30,10 +30,10 @@ MIN_IMG_HEIGHT = 480
 MIN_FACE_WIDTH = 150
 MIN_FACE_HEIGHT = 150
 
-MIN_SHARPNESS_LAPLACIAN = 45.0  # Varianza mínima de Laplaciano para nitidez
-MIN_BRIGHTNESS = 40.0           # Brillo mínimo promedio (0-255)
-MAX_BRIGHTNESS = 220.0          # Brillo máximo promedio (evitar sobreexposición)
-MAX_SHADOW_ASYMMETRY = 70.0     # Diferencia máxima entre mitades del rostro
+MIN_SHARPNESS_LAPLACIAN = 4.0   # Varianza mínima de Laplaciano calibrada para recorte facial en webcam (desenfoque < 3.0, nítido >= 5.0)
+MIN_BRIGHTNESS = 35.0           # Brillo mínimo promedio (0-255)
+MAX_BRIGHTNESS = 225.0          # Brillo máximo promedio (evitar sobreexposición)
+MAX_SHADOW_ASYMMETRY = 75.0     # Diferencia máxima entre mitades del rostro
 
 CATALOG_PATH = Path("data/known_faces.pkl")
 
@@ -46,7 +46,8 @@ def get_face_app():
         try:
             from insightface.app import FaceAnalysis
             _face_app = FaceAnalysis(name="buffalo_sc", providers=["CPUExecutionProvider"])
-            _face_app.prepare(ctx_id=0, det_size=(320, 320))
+            # det_size=(640, 640) para máxima precisión en fotos estáticas de registro (detecta giros y poses)
+            _face_app.prepare(ctx_id=0, det_size=(640, 640))
         except Exception as e:
             print(f"[ArcFace] Error inicializando FaceAnalysis: {e}")
             _face_app = None
@@ -66,7 +67,7 @@ def is_match(similarity: float, threshold: float = DEFAULT_THRESHOLD) -> bool:
 
 def validate_photo_quality(file_path: Path) -> Tuple[bool, str, Optional[np.ndarray], Optional[Dict[str, Any]]]:
     """
-    Evalúa estrictamente los criterios de calidad de Taiga para una fotografía:
+    Evalúa estrictamente los criterios de calidad biométrica para una fotografía:
     1. Formato (JPG o PNG).
     2. Tamaño del archivo (máximo 5 MB).
     3. Resolución de la imagen (mínimo 640x480 px).
@@ -188,7 +189,7 @@ def register_person_biometrics(
     min_required: int = MIN_FACES_REQUIRED
 ) -> Tuple[bool, str, List[Path], List[str]]:
     """
-    Procesa un lote de fotografías aplicando las reglas de calidad de Taiga.
+    Procesa un lote de fotografías aplicando las reglas de calidad biométrica.
     Elimina del disco las fotos que no cumplan los criterios e informa los motivos.
     Si quedan al menos min_required (5) fotos válidas, genera el vector ArcFace.
     """

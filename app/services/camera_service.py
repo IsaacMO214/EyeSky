@@ -39,8 +39,10 @@ class CameraService:
         self.thread: Optional[threading.Thread] = None
         self.lock = threading.Lock()
 
-        # Último cuadro codificado en JPEG
+        # Último cuadro codificado en JPEG (para streaming)
         self.latest_jpeg: Optional[bytes] = None
+        # Último cuadro nativo puro en alta resolución (sin recuadros, para registro biométrico)
+        self.latest_raw_frame: Optional[np.ndarray] = None
         # Últimas detecciones para la UI
         self.latest_detections: List[dict] = []
         self.camera_active = False
@@ -119,8 +121,9 @@ class CameraService:
             self.running = False
             return
 
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        # Solicitar resolución nativa alta a la cámara (ej. 720p o 1080p del iPhone/Webcam)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
         self.camera_active = True
         frame_idx = 0
@@ -138,24 +141,29 @@ class CameraService:
             frame_idx += 1
             fps_counter += 1
 
-            # Redimensionar si la fuente entrega una resolución muy alta (ej. iPhone 1080p/4K)
+            # 1. Guardar copia nativa pura en alta resolución (para capturas de registro biométrico)
+            raw_snapshot = frame.copy()
+
+            # 2. Redimensionar para la transmisión en vivo y detección ligera en CPU
             h, w = frame.shape[:2]
-            if w > 800:
-                scale = 640 / w
-                frame = cv2.resize(frame, (int(w * scale), int(h * scale)))
+            if w > 640:
+                scale = 640.0 / w
+                display_frame = cv2.resize(frame, (640, int(h * scale)))
+            else:
+                display_frame = frame.copy()
 
             # Procesar inferencia de ArcFace cada N fotogramas (por defecto cada 5)
             # Esto evita quemar la CPU calculando vectores 30 veces por segundo innecesariamente
             if self.face_app is not None and frame_idx % self.inference_interval == 0:
                 try:
-                    cached_faces = self.face_app.get(frame)
+                    cached_faces = self.face_app.get(display_frame)
                 except Exception as e:
                     print(f"[CameraService] Error en detección: {e}")
                     cached_faces = []
 
             detections_info = []
 
-            # Dibujar detecciones sobre el cuadro
+            # Dibujar detecciones sobre el cuadro de visualización
             for face in cached_faces:
                 box = face.bbox.astype(int)
                 x1, y1, x2, y2 = box[0], box[1], box[2], box[3]
@@ -165,13 +173,13 @@ class CameraService:
                 color = (0, 255, 0) if is_authorized else (0, 0, 255)
 
                 # Bounding box
-                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
 
                 # Etiqueta
                 label = f"{name} ({score * 100:.1f}%)"
                 y_label = max(y1 - 10, 20)
                 cv2.putText(
-                    frame,
+                    display_frame,
                     label,
                     (x1, y_label),
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -195,11 +203,12 @@ class CameraService:
                 fps_counter = 0
                 fps_start = now
 
-            # Codificar cuadro a JPEG
-            ret, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            # Codificar cuadro a JPEG para el streaming
+            ret, buffer = cv2.imencode(".jpg", display_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
             if ret:
                 with self.lock:
                     self.latest_jpeg = buffer.tobytes()
+                    self.latest_raw_frame = raw_snapshot
                     self.latest_detections = detections_info
 
             time.sleep(0.01)
@@ -220,6 +229,22 @@ class CameraService:
                     b"Content-Type: image/jpeg\r\n\r\n" + frame_bytes + b"\r\n"
                 )
             time.sleep(0.04)  # ~25 FPS en el stream
+
+    def get_snapshot_jpeg(self) -> Optional[bytes]:
+        """
+        Devuelve el fotograma nativo puro en alta resolución (sin anotaciones ni recuadros)
+        en formato JPEG con calidad 95 para el registro biométrico de usuarios.
+        """
+        self.start()
+        with self.lock:
+            if self.latest_raw_frame is None:
+                return None
+            frame_to_encode = self.latest_raw_frame.copy()
+
+        ret, buffer = cv2.imencode(".jpg", frame_to_encode, [cv2.IMWRITE_JPEG_QUALITY, 95])
+        if ret:
+            return buffer.tobytes()
+        return None
 
     def get_status(self):
         """Retorna el estado actual del servicio para la interfaz web."""

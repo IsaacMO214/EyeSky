@@ -5,7 +5,7 @@ from app.db.database import Base
 class Person(Base):
     """
     Modelo de personas autorizadas por domicilio (HU01).
-    Criterios Taiga:
+    Criterios del sistema:
     - Nombre completo
     - Rol o parentesco: 'Residente', 'Familiar' o 'Empleado'
     - Identificador único de negocio (unique_code)

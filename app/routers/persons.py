@@ -59,7 +59,7 @@ class PersonPage(BaseModel):
 # ---- Helpers de Validación ----
 
 def check_domicile_limit(db: Session, domicile: str):
-    """Criterio Taiga: Límite de hasta 6 personas autorizadas por domicilio."""
+    """Criterio del sistema: Límite de hasta 6 personas autorizadas por domicilio."""
     count = db.query(Person).filter(
         Person.domicile == domicile,
         Person.status == "Autorizada"
@@ -73,7 +73,7 @@ def check_domicile_limit(db: Session, domicile: str):
     return count
 
 def check_duplicate_person(db: Session, name: str, unique_code: Optional[str], exclude_id: Optional[int] = None):
-    """Criterio Taiga: El sistema impide registros duplicados."""
+    """Criterio del sistema: El sistema impide registros duplicados."""
     query = db.query(Person).filter(
         (Person.name.ilike(name)) | (Person.unique_code == unique_code)
     )
@@ -244,7 +244,7 @@ async def upload_and_register_person(
     db: Session = Depends(get_db)
 ):
     """
-    Criterios de Aceptación Taiga (HU01, HU02, HU03):
+    Criterios de Aceptación (HU01, HU02, HU03):
     1. Límite de hasta 6 personas autorizadas por domicilio.
     2. Registro con nombre, rol (Residente, Familiar, Empleado) e identificador único.
     3. Impide registros duplicados.

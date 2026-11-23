@@ -3,11 +3,25 @@ app/routers/stream.py
 Endpoints para transmisión de video en tiempo real y estado del reconocimiento.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Response
 from fastapi.responses import StreamingResponse
 from app.services.camera_service import camera_service
 
 router = APIRouter(prefix="/api/stream", tags=["Streaming de Video en Vivo"])
+
+@router.get("/snapshot")
+def get_snapshot():
+    """
+    Captura y devuelve una fotografía limpia en alta resolución nativa de la cámara
+    para el registro biométrico de usuarios (sin recuadros de detección).
+    """
+    jpeg_bytes = camera_service.get_snapshot_jpeg()
+    if not jpeg_bytes:
+        raise HTTPException(
+            status_code=503,
+            detail="La cámara no está disponible o no ha transmitido un fotograma aún."
+        )
+    return Response(content=jpeg_bytes, media_type="image/jpeg")
 
 @router.get("/video_feed")
 def video_feed():

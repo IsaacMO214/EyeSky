@@ -265,8 +265,29 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      max-height: 240px;
+      max-height: 260px;
       overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) #0f172a;
+    }
+
+    .person-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .person-list::-webkit-scrollbar-track {
+      background: #0f172a;
+      border-radius: 4px;
+    }
+
+    .person-list::-webkit-scrollbar-thumb {
+      background: #3b82f6;
+      border-radius: 4px;
+    }
+
+    .person-list::-webkit-scrollbar-thumb:hover {
+      background: #60a5fa;
     }
 
     .person-item {
@@ -471,12 +492,43 @@
       color: var(--text);
     }
 
+    #registerForm {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
     .modal-body {
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      flex: 1;
+      min-height: 0;
+      max-height: calc(90vh - 140px);
       overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) #0f172a;
+    }
+
+    .modal-body::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+      background: #0f172a;
+      border-radius: 4px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 4px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-hover);
     }
 
     .form-row {
@@ -638,6 +690,145 @@
       color: var(--text-muted);
       line-height: 1.4;
     }
+
+    /* Tabs & Capture Wizard */
+    .tabs-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.75rem;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      padding: 0.5rem 0.85rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .capture-wizard {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .capture-view-wrapper {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 220px;
+    }
+
+    .capture-view-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .oval-guide {
+      position: absolute;
+      width: 110px;
+      height: 150px;
+      border: 2px dashed rgba(59, 130, 246, 0.8);
+      border-radius: 50%;
+      pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.28);
+    }
+
+    .shutter-flash {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease-out;
+    }
+
+    .shutter-flash.flash {
+      opacity: 0.85;
+    }
+
+    .wizard-instruction {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .slots-row {
+      display: flex;
+      gap: 0.4rem;
+      justify-content: space-between;
+    }
+
+    .slot-item {
+      flex: 1;
+      height: 60px;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      background: #111827;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 0.2rem;
+    }
+
+    .slot-item.filled {
+      border-style: solid;
+      border-color: var(--success);
+    }
+
+    .slot-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .slot-badge {
+      position: absolute;
+      bottom: 2px;
+      left: 2px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      font-size: 0.6rem;
+      padding: 0.05rem 0.25rem;
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
@@ -728,7 +919,7 @@
     </aside>
   </main>
 
-  <!-- Modal para Registrar Persona con Fotos (Criterios Taiga HU01, HU02, HU03) -->
+  <!-- Modal para Registrar Persona con Fotos (Criterios HU01, HU02, HU03) -->
   <div id="registerModal" class="modal-overlay" onclick="closeModalOnBackdrop(event)">
     <div class="modal">
       <div class="modal-header">
@@ -771,32 +962,78 @@
             <input type="text" id="personDomicile" class="form-input" value="Domicilio 1" required>
           </div>
 
-          <!-- Fotos Requeridas -->
+          <!-- Fotos Requeridas: Asistente con Cámara o Subida de Archivos -->
           <div class="form-group">
-            <label class="form-label">
-              Fotografías del rostro (Mínimo 5 obligatorias) *
-              <span id="photoCountBadge" style="font-size: 0.8rem; font-weight: 700; color: var(--warning); margin-left: 0.5rem;">(0/5 seleccionadas)</span>
-            </label>
-            <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
-              <div class="drop-zone-icon">📸</div>
-              <div class="drop-zone-text">Haz clic o arrastra al menos 5 fotos aquí</div>
-              <div class="drop-zone-subtext">Formatos: JPG o PNG (máximo 5 MB por archivo)</div>
-              <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" style="display: none;" onchange="handleFilesSelected(this.files)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <label class="form-label" style="margin: 0;">Fotografías del rostro (Mínimo 5 obligatorias) *</label>
+              <span id="photoCountBadge" style="font-size: 0.8rem; font-weight: 700; color: var(--warning);">(0/5 capturadas)</span>
             </div>
 
-            <!-- Criterios de Calidad Biometría Taiga -->
-            <div class="criteria-box">
-              <strong>Requisitos de calidad biométrica (Taiga):</strong>
-              <ul style="padding-left: 1rem; margin-top: 0.25rem;">
-                <li>Al menos 5 fotos: frontal, giro izq., giro der., con/sin sonrisa.</li>
-                <li>Exactamente <strong>1 solo rostro</strong> visible por fotografía.</li>
-                <li>Rostro de al menos <strong>150x150 px</strong> e imagen de <strong>640x480 px</strong>.</li>
-                <li>Iluminación uniforme, nítida y sin sombras fuertes ni contraluz.</li>
+            <div class="tabs-nav">
+              <button type="button" id="tabCameraBtn" class="tab-btn active" onclick="switchPhotoTab('camera')">
+                <span>📸</span> <span>Tomar con Cámara (Recomendado)</span>
+              </button>
+              <button type="button" id="tabUploadBtn" class="tab-btn" onclick="switchPhotoTab('upload')">
+                <span>📁</span> <span>Subir Archivos desde PC</span>
+              </button>
+            </div>
+
+            <!-- VISTA 1: Asistente de Cámara en Vivo con Captura en Alta Resolución -->
+            <div id="cameraWizardView" class="capture-wizard">
+              <div class="capture-view-wrapper">
+                <img id="captureLivePreview" src="/api/stream/video_feed" alt="Vista previa de cámara">
+                <div class="oval-guide"></div>
+                <div id="shutterFlash" class="shutter-flash"></div>
+              </div>
+
+              <!-- Indicador de Pose Actual Guiada -->
+              <div class="wizard-instruction">
+                <div>
+                  <strong id="poseStepTitle" style="color: #60a5fa; display: block; font-size: 0.85rem;">Paso 1/5: Vista Frontal Neutra</strong>
+                  <span id="poseStepDesc" style="color: var(--text-muted); font-size: 0.78rem;">Mira directo a la cámara con expresión normal/seria.</span>
+                </div>
+                <span id="poseCounterBadge" class="quota-badge">1 / 5</span>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem;">
+                <button type="button" id="captureSnapshotBtn" class="btn btn-primary" onclick="captureLiveSnapshot()" style="flex: 2;">
+                  <span>📸</span> <span id="captureBtnText">Capturar Foto 1 de 5 (Frontal)</span>
+                </button>
+                <button type="button" class="btn" onclick="resetLiveCaptures()" style="flex: 1;" title="Reiniciar fotos">
+                  <span>🔄</span> <span>Reiniciar</span>
+                </button>
+              </div>
+
+              <!-- Galería de los 5 slots con check visual -->
+              <div class="slots-row">
+                <div class="slot-item" id="slot0"><span>1. Frontal</span><span class="slot-badge">P1</span></div>
+                <div class="slot-item" id="slot1"><span>2. Giro Izq</span><span class="slot-badge">P2</span></div>
+                <div class="slot-item" id="slot2"><span>3. Giro Der</span><span class="slot-badge">P3</span></div>
+                <div class="slot-item" id="slot3"><span>4. Sonrisa</span><span class="slot-badge">P4</span></div>
+                <div class="slot-item" id="slot4"><span>5. Lentes/P5</span><span class="slot-badge">P5</span></div>
+              </div>
+            </div>
+
+            <!-- VISTA 2: Subida tradicional de archivos -->
+            <div id="uploadFilesView" style="display: none; flex-direction: column; gap: 0.75rem;">
+              <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+                <div class="drop-zone-icon">📸</div>
+                <div class="drop-zone-text">Haz clic o arrastra al menos 5 fotos aquí</div>
+                <div class="drop-zone-subtext">Formatos: JPG o PNG (máximo 5 MB por archivo)</div>
+                <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" style="display: none;" onchange="handleFilesSelected(this.files)">
+              </div>
+              <div id="previewGrid" class="preview-grid"></div>
+            </div>
+
+            <!-- Criterios de Calidad Biométrica -->
+            <div class="criteria-box" style="margin-top: 0.5rem;">
+              <strong>Criterios de calidad biométrica:</strong>
+              <ul style="padding-left: 1rem; margin-top: 0.2rem;">
+                <li>5 fotografías requeridas capturadas en resolución nativa de la cámara (Full HD / 720p).</li>
+                <li>Exactamente <strong>1 solo rostro</strong> visible de al menos 150x150 px.</li>
+                <li>Iluminación uniforme, sin sombras duras ni contraluz.</li>
               </ul>
             </div>
-
-            <!-- Previsualización de fotos -->
-            <div id="previewGrid" class="preview-grid"></div>
           </div>
         </div>
 
@@ -835,14 +1072,140 @@
     const modalAlert = document.getElementById("modalAlert");
     const photoCountBadge = document.getElementById("photoCountBadge");
 
+    const POSES = [
+      { title: "Paso 1/5: Vista Frontal Neutra", desc: "Mira directo a la cámara con expresión normal o seria.", short: "1. Frontal" },
+      { title: "Paso 2/5: Giro Leve a la Izquierda", desc: "Giro sutil de cabeza (solo 10°-15°) a la izquierda. ¡Importante: ambos ojos deben seguir visibles en cámara!", short: "2. Giro Izq" },
+      { title: "Paso 3/5: Giro Leve a la Derecha", desc: "Giro sutil de cabeza (solo 10°-15°) a la derecha. ¡Importante: ambos ojos deben seguir visibles en cámara!", short: "3. Giro Der" },
+      { title: "Paso 4/5: Sonrisa Ligera", desc: "Sonríe de manera natural mirando a la cámara.", short: "4. Sonrisa" },
+      { title: "Paso 5/5: Mirada Normal / Con Lentes", desc: "Mirada normal de frente (o con lentes de graduación si los usas habitualmente).", short: "5. Lentes/P5" }
+    ];
+
     let selectedFiles = [];
+    let currentPoseIndex = 0;
+    let activePhotoTab = "camera";
     let lastLoggedName = null;
     let lastLogTime = 0;
     let currentAuthorizedCount = 0;
 
+    const shutterFlash = document.getElementById("shutterFlash");
+    const poseStepTitle = document.getElementById("poseStepTitle");
+    const poseStepDesc = document.getElementById("poseStepDesc");
+    const poseCounterBadge = document.getElementById("poseCounterBadge");
+    const captureSnapshotBtn = document.getElementById("captureSnapshotBtn");
+    const captureBtnText = document.getElementById("captureBtnText");
+
+    function switchPhotoTab(tab) {
+      activePhotoTab = tab;
+      const tabCam = document.getElementById("tabCameraBtn");
+      const tabUp = document.getElementById("tabUploadBtn");
+      const viewCam = document.getElementById("cameraWizardView");
+      const viewUp = document.getElementById("uploadFilesView");
+
+      if (tab === "camera") {
+        tabCam.classList.add("active");
+        tabUp.classList.remove("active");
+        viewCam.style.display = "flex";
+        viewUp.style.display = "none";
+        // Recargar el stream del wizard
+        document.getElementById("captureLivePreview").src = "/api/stream/video_feed?t=" + Date.now();
+      } else {
+        tabUp.classList.add("active");
+        tabCam.classList.remove("active");
+        viewCam.style.display = "none";
+        viewUp.style.display = "flex";
+      }
+    }
+
+    async function captureLiveSnapshot() {
+      if (currentPoseIndex >= 5) {
+        alert("Ya has capturado las 5 fotografías requeridas. Puedes presionar 'Guardar y Validar Biometría'.");
+        return;
+      }
+
+      captureSnapshotBtn.disabled = true;
+      captureBtnText.textContent = "Capturando foto en resolución nativa...";
+
+      try {
+        // Efecto visual de obturador fotográfico (flash)
+        if (shutterFlash) {
+          shutterFlash.classList.add("flash");
+          setTimeout(() => shutterFlash.classList.remove("flash"), 120);
+        }
+
+        // Petición al endpoint de snapshot (foto pura a 1080p/720p sin recuadros)
+        const res = await fetch("/api/stream/snapshot?t=" + Date.now());
+        if (!res.ok) {
+          throw new Error("No se pudo obtener el fotograma de la cámara. Verifica que esté conectada.");
+        }
+
+        const blob = await res.blob();
+        const file = new File([blob], `pose_${currentPoseIndex + 1}_${Date.now()}.jpg`, { type: "image/jpeg" });
+
+        // Guardar en la lista
+        selectedFiles[currentPoseIndex] = file;
+
+        // Actualizar el slot correspondiente con la miniatura
+        const slot = document.getElementById(`slot${currentPoseIndex}`);
+        if (slot) {
+          slot.classList.add("filled");
+          const imgUrl = URL.createObjectURL(blob);
+          slot.innerHTML = `<img src="${imgUrl}"><span class="slot-badge">✓ P${currentPoseIndex + 1}</span>`;
+        }
+
+        currentPoseIndex++;
+        updatePoseUI();
+
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        captureSnapshotBtn.disabled = false;
+      }
+    }
+
+    function updatePoseUI() {
+      if (photoCountBadge) {
+        if (currentPoseIndex >= 5) {
+          photoCountBadge.textContent = `(5/5 capturadas - ¡Listo para guardar!)`;
+          photoCountBadge.style.color = "var(--success)";
+        } else {
+          photoCountBadge.textContent = `(${currentPoseIndex}/5 capturadas - faltan ${5 - currentPoseIndex})`;
+          photoCountBadge.style.color = "var(--warning)";
+        }
+      }
+
+      if (currentPoseIndex < 5) {
+        const pose = POSES[currentPoseIndex];
+        poseStepTitle.textContent = pose.title;
+        poseStepDesc.textContent = pose.desc;
+        poseCounterBadge.textContent = `${currentPoseIndex + 1} / 5`;
+        captureBtnText.textContent = `Capturar Foto ${currentPoseIndex + 1} de 5 (${pose.short})`;
+        captureSnapshotBtn.classList.add("btn-primary");
+      } else {
+        poseStepTitle.textContent = "✅ ¡5 Poses Capturadas con Éxito!";
+        poseStepDesc.textContent = "Presiona 'Guardar y Validar Biometría' para completar el registro.";
+        poseCounterBadge.textContent = "5 / 5";
+        captureBtnText.textContent = "✓ 5 Fotos Listas";
+      }
+    }
+
+    function resetLiveCaptures() {
+      selectedFiles = [];
+      currentPoseIndex = 0;
+      for (let i = 0; i < 5; i++) {
+        const slot = document.getElementById(`slot${i}`);
+        if (slot) {
+          slot.classList.remove("filled");
+          slot.innerHTML = `<span>${POSES[i].short}</span><span class="slot-badge">P${i + 1}</span>`;
+        }
+      }
+      updatePoseUI();
+      hideAlert();
+    }
+
     // Control del Modal
     async function openRegisterModal() {
-      selectedFiles = [];
+      resetLiveCaptures();
+      switchPhotoTab("camera");
       personNameInput.value = "";
       previewGrid.innerHTML = "";
       hideAlert();
@@ -979,7 +1342,7 @@
       }
 
       if (selectedFiles.length < 5) {
-        showAlert(`Criterio de Taiga no cumplido: Debes seleccionar al menos 5 fotografías para registrar (has seleccionado ${selectedFiles.length}).`, true);
+        showAlert(`Requisito no cumplido: Debes seleccionar al menos 5 fotografías para registrar (has seleccionado ${selectedFiles.length}).`, true);
         return;
       }
 
