@@ -55,10 +55,17 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def home():
-    """Sirve la interfaz web del sistema."""
+    """Sirve la interfaz web del sistema con desactivación de caché."""
     index_file = static_dir / "index.html"
     if index_file.exists():
-        return FileResponse(str(index_file))
+        return FileResponse(
+            str(index_file),
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
     return {
         "project": settings.PROJECT_NAME,
         "status": "online",

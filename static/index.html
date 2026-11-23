@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>EyeSky - Panel de Reconocimiento Facial</title>
   <style>
     :root {
@@ -437,7 +440,8 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      padding: 1rem;
+      padding: 1.25rem 1rem;
+      overflow-y: auto;
     }
 
     .modal-overlay.active {
@@ -455,7 +459,9 @@
       display: flex;
       flex-direction: column;
       animation: modalSlide 0.25s ease-out;
-      max-height: 90vh;
+      height: 88vh;
+      max-height: 88vh;
+      margin: auto;
     }
 
     @keyframes modalSlide {
@@ -464,11 +470,12 @@
     }
 
     .modal-header {
-      padding: 1.25rem;
+      padding: 1.1rem 1.25rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
 
     .modal-title {
@@ -492,29 +499,22 @@
       color: var(--text);
     }
 
-    #registerForm {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-    }
-
     .modal-body {
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      flex: 1;
+      flex: 1 1 0%;
       min-height: 0;
-      max-height: calc(90vh - 140px);
-      overflow-y: auto;
+      overflow-y: scroll;
+      overflow-x: hidden;
       scrollbar-width: thin;
       scrollbar-color: var(--primary) #0f172a;
     }
 
     .modal-body::-webkit-scrollbar {
       width: 8px;
+      display: block;
     }
 
     .modal-body::-webkit-scrollbar-track {
@@ -638,12 +638,13 @@
     }
 
     .modal-footer {
-      padding: 1rem 1.25rem;
+      padding: 0.9rem 1.25rem;
       background: #0f172a;
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: flex-end;
       gap: 0.75rem;
+      flex-shrink: 0;
     }
 
     .spinner {
@@ -921,17 +922,16 @@
 
   <!-- Modal para Registrar Persona con Fotos (Criterios HU01, HU02, HU03) -->
   <div id="registerModal" class="modal-overlay" onclick="closeModalOnBackdrop(event)">
-    <div class="modal">
+    <form id="registerForm" class="modal" onsubmit="handleRegisterSubmit(event)">
       <div class="modal-header">
         <div class="modal-title">
           <span>👤</span>
           <span>Registrar Persona Autorizada</span>
         </div>
-        <button class="modal-close" onclick="closeRegisterModal()">&times;</button>
+        <button type="button" class="modal-close" onclick="closeRegisterModal()">&times;</button>
       </div>
 
-      <form id="registerForm" onsubmit="handleRegisterSubmit(event)">
-        <div class="modal-body">
+      <div class="modal-body">
           <div id="modalAlert" class="alert-box"></div>
 
           <!-- Nombre Completo -->
@@ -1043,8 +1043,7 @@
             <span>Guardar y Validar Biometría</span>
           </button>
         </div>
-      </form>
-    </div>
+    </form>
   </div>
 
   <script>
@@ -1316,6 +1315,10 @@
       modalAlert.textContent = text;
       modalAlert.className = `alert-box ${isError ? 'alert-error' : 'alert-success'}`;
       modalAlert.style.display = "block";
+      const body = document.querySelector(".modal-body");
+      if (body) {
+        body.scrollTop = 0;
+      }
     }
 
     function hideAlert() {
